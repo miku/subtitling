@@ -6,7 +6,7 @@ README
         $ python subtitlegen.py --long sample.csv > sample.srt
 
 
-2. Optional. Downcase all filenames (`MOV` to `mov`). (Might only be a problem on HFS+):
+2. Optional. Downcase all filenames (`MOV` to `mov`); (might only be a problem on HFS+):
 
         $ find 1-20-S-2-38-S -name "*.MOV" \
             -exec sh -c 'mv "$1" "${1%.MOV}.mov"' _ {} \;
