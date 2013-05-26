@@ -4,7 +4,7 @@ README
 `subtitlegen` creates [SRTs](http://en.wikipedia.org/wiki/SubRip) from 
 [CSVs](http://en.wikipedia.org/wiki/Comma-separated_values).
 
-1. Create the subtitles from csv via `subtitlegen.py`:
+1. Create the **subtitles from csv** via `subtitlegen.py`:
 
         $ python subtitlegen.py --long sample.csv > sample.srt
 
