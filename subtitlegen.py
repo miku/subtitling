@@ -2,44 +2,50 @@
 # coding: utf-8
 
 from __future__ import print_function, division
+import argparse
 import csv
 import sys
 import re
 
-def partition(begin=None, end=None, n=10, start=0, finish=1):
-    """ 
-    Returns `n` timestamps that represent a ordered partition,
-    time goes from begin to end; distance goes from start to finish.
+class Timerange(object):
+    """ Helper object representing an interval.
     """
-    ONE_MILLISECOND = Timestamp.from_ms(1)
+    def __init__(self, begin=None, end=None):
+        if not begin and not end:
+            raise ValueError('start and end required')
+        self.begin = begin
+        self.end = end
 
-    delta_t, delta_s = end.to_ms() - begin.to_ms(), finish - start
-    d_t, d_s = delta_t // n, delta_s / n
-    current_t, current_s = begin.to_ms(), start
-    cuts = []
-    for i in range(n + 1):
-        cuts.append( 
-            current_s, 
-            Timestamp.from_ms(current_t), 
-            Timestamp.from_ms(current_t + d_t - ONE_MILLISECOND) 
-        )
-        current_t += d_t
-        current_s += d_s
-    return cuts
+    def length(self, unit='milliseconds'):
+        millis = (self.end.to_ms() - self.begin.to_ms())
+        if unit == 'seconds':
+            return millis / 1000
+        return millis
 
+    def partition(self, n=10):
+        delta = self.length() / n
+        begin = self.begin
+        parts = []
+        for i in range(n):
+            end = Timestamp.from_ms(begin.to_ms() + delta - 1)
+            parts.append(Timerange(begin=begin, end=end))
+            begin = Timestamp.from_ms(begin.to_ms() + delta)
+        return parts
+
+    def __str__(self):
+        return '<Timerange {0.begin} -- {0.end} [{1:03.3f}s]>'.format(self, self.length('seconds'))
 
 class Timestamp(object):
-    """ 
-    hh:mm:ss,mmm object, that run from 00:00:00,000 to 59:59:59,999
+    """ hh:mm:ss,mmm object, that run from 00:00:00,000 to 59:59:59,999
     """
     def __init__(self, value='00:00:00,000'):
-        mo = re.match('([0-5][0-9]):([0-5][0-9]):([0-5][0-9])(,([0-9]{3,3}))?', value)
+        mo = re.match('([0-5][0-9]):([0-5][0-9]):([0-5][0-9])', value)
         if not mo:
             raise ValueError('cannot parse "%s" into a Timestamp' % value)
-        self.hours = long(mo.group(1) or '00')
-        self.minutes = long(mo.group(2) or '00')
-        self.seconds = long(mo.group(3) or '00')
-        self.milliseconds = long(mo.group(5) or '000')
+        self.minutes = long(mo.group(1) or '00')
+        self.seconds = long(mo.group(2) or '00')
+        self.milliseconds = long(mo.group(3) or '00')
+        self.hours = 0
 
     @classmethod
     def from_ms(self, milliseconds):
@@ -50,12 +56,10 @@ class Timestamp(object):
         current = long(milliseconds)
         if current > 215999999: # or current < 0:
             raise ValueError('Between 00:00:00,000 and 59:59:59,999 only.')
-        ts.hours = current // (1000 * 60 * 60)
-        current -= ts.hours * (1000 * 60 * 60)
-        ts.minutes = current // (1000 * 60)
-        current -= ts.minutes * (1000 * 60)
-        ts.seconds = current // (1000)
-        current -= ts.seconds * (1000)
+        ts.minutes = current // 60000
+        current -= ts.minutes * 60000
+        ts.seconds = current // 1000
+        current -= ts.seconds * 1000
         ts.milliseconds = current
         return ts
 
@@ -63,14 +67,17 @@ class Timestamp(object):
         return (
             long(self.milliseconds) + 
             1000 * long(self.seconds) + 
-            1000 * 60 * long(self.minutes) + 
-            1000 * 60 * 60 * long(self.hours))
+            1000 * 60 * long(self.minutes))
 
     def __add__(self, other):
         return Timestamp.from_ms(self.to_ms() + other.to_ms())
 
     def __sub__(self, other):
         return Timestamp.from_ms(self.to_ms() - other.to_ms())
+
+    # def __str__(self):
+    #     return '{:02d}:{:02d}:{:02d},{:03d} [{:02d}]'.format(
+    #         self.hours, self.minutes, self.seconds, self.milliseconds, self.to_ms())
 
     def __str__(self):
         return '{:02d}:{:02d}:{:02d},{:03d}'.format(
@@ -82,26 +89,43 @@ class Timestamp(object):
 ONE_MILLISECOND = Timestamp.from_ms(1)
 
 def main():
-    with open('sample.csv') as handle:
+
+    parser = argparse.ArgumentParser('subtitlegen')
+    parser.add_argument('-p', '--partition', metavar='N', type=int, 
+        help='partition into N parts')
+    parser.add_argument('file', type=str, metavar='FILE', help='input CSV file')
+
+    args = parser.parse_args()
+
+    with open(args.file) as handle:
         reader = csv.reader(handle)
         rows = [ row for row in reader ]
+        counter, distance = 0, 0
         for i, row in enumerate(rows[:-1]):
             try:
-                begin = Timestamp(rows[i][1])
-                end = Timestamp(rows[i + 1][1]) - ONE_MILLISECOND
+                current, nxt = rows[i], rows[i + 1]
+                d = current[0] # the current distance
+                begin, end = map(Timestamp, [current[1], nxt[1]])
 
-                # s0 = float(rows[i][0])
-                # s1 = float(rows[i + 1][0])
-                # sm = s0 + ((s1 - s0) / 2)
-                # t0 = Timestamp(rows[i][1])
-                # t1 = Timestamp(rows[i + 1][1]) - ONE_MILLISECOND
-                # tm = t0 + Timestamp.from_ms((t1 - t0).to_ms() / 2)
-                # print(s0, t0, tm)
-                # print(sm, tm + ONE_MILLISECOND, t1)
-                for s, t in partition(begin=begin, end=end, n=5, 
-                        start=long(rows[i][0]), 
-                        finish=long(rows[i + 1][0])):
-                    print('\t%s %s' % (s, t))
+                rng = Timerange(begin=begin, end=end)
+
+                if args.partition:
+                    for subrange in rng.partition(n=args.partition):
+                        print(counter)
+                        print("%s --> %s" % (subrange.begin, subrange.end))
+                        print("~ %s meters [%s -- %s | %s s]" % (distance, subrange.begin, subrange.end, round(subrange.length(unit='seconds'))))
+                        print()
+
+                        distance += 1 / (args.partition)
+                        counter += 1
+                else:
+                    print(counter)
+                    __end = rng.end - ONE_MILLISECOND
+                    print("%s --> %s" % (rng.begin, __end))
+                    print("~ %s meters [%s -- %s | %s s]" % (distance, rng.begin, __end, round(rng.length(unit='seconds'))))
+                    print()
+                    counter += 1
+
             except ValueError as err:
                 print('parse error: {}'.format(err), file=sys.stderr)
 
