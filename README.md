@@ -16,6 +16,7 @@ README
 
     The resulting srt looks like:
 
+        $ cat sample.srt
         0
         00:34:39,000 --> 00:34:51,999
         ~ 0 m [00:34:39,000 | 13.0]
