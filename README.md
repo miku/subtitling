@@ -62,6 +62,10 @@ README
         $ MP4Box -add ab.mp4#audio -add ab.mp4#video \
             -add test.srt:hdlr=sbtl:lang=en:group=2:layer=-1 -new ab-with-subs.m4v
 
+As a picture
+------------
+
+![Makefile viz.](http://i.imgur.com/6qHrqgC.png "Makefile viz. Thanks vak (https://github.com/vak/makefile2dot)")
 
 Failed attempts
 ---------------
