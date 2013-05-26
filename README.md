@@ -5,6 +5,35 @@ README
 
         $ python subtitlegen.py --long sample.csv > sample.srt
 
+    The expected CSV format is:
+
+        $ cat sample.csv
+        0,34:39:00
+        1,34:52:00
+        2,35:01:00
+        3,35:55:00
+        ...
+
+    The resulting srt looks like:
+
+        0
+        00:34:39,000 --> 00:34:51,999
+        ~ 0 m [00:34:39,000 | 13.0]
+
+        1
+        00:34:52,000 --> 00:35:00,999
+        ~ 1 m [00:34:52,000 | 9.0]
+
+        2
+        00:35:01,000 --> 00:35:54,999
+        ~ 2 m [00:35:01,000 | 54.0]
+
+        3
+        00:35:55,000 --> 00:36:11,999
+        ~ 3 m [00:35:55,000 | 17.0]
+
+        ...
+
 
 2. Optional. Downcase all filenames (`MOV` to `mov`); (might only be a problem on HFS+):
 
