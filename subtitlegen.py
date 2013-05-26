@@ -60,7 +60,9 @@ SRT_ITEM = """
 
 
 def render_subtitle_item(counter=None, begin=None, end=None, message=None):
-    """ helper to render one subtitle item """
+    """ 
+    Helper to render one subtitle item.
+    """
     return SRT_ITEM.format(**locals())
 
 
@@ -101,7 +103,8 @@ class Timerange(object):
 
 
 class Timestamp(object):
-    """ mm:ss:ll object (ll = milliseconds).
+    """ 
+    Timestamp object, format: mm:ss:ll (where ll = milliseconds).
     """
     def __init__(self, value='00:00:00,000'):
         mo = re.match('([0-5][0-9]):([0-5][0-9]):([0-5][0-9])', value)
@@ -129,7 +132,9 @@ class Timestamp(object):
         return ts
 
     def to_ms(self):
-        """ Convert timestamp into milliseconds. """
+        """
+        Convert timestamp into milliseconds. 
+        """
         return (
             self.milliseconds +
             1000 * self.seconds +
