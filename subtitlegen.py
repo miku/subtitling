@@ -67,7 +67,8 @@ def render_subtitle_item(counter=None, begin=None, end=None, message=None):
 
 
 class Timerange(object):
-    """ Helper object representing an interval.
+    """ 
+    Helper object representing an interval between two Timestamps.
     """
     def __init__(self, begin=None, end=None):
         if not begin and not end:
