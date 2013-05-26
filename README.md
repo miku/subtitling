@@ -60,7 +60,7 @@ README
 5. **Create a new file** that has a dedicated subtitle track with [MP4Box](http://gpac.wp.mines-telecom.fr/mp4box/):
 
         $ MP4Box -add ab.mp4#audio -add ab.mp4#video \
-            -add test.srt:hdlr=sbtl:lang=en:group=2:layer=-1 -new ab-with-subs.m4v
+            -add test.srt:hdlr=sbtl:lang=en:group=2:layer=-1 -new output.m4v
 
 As a picture
 ------------
