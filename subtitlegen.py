@@ -94,6 +94,8 @@ def main():
     parser.add_argument('-p', '--partition', metavar='N', type=int, 
         help='partition into N parts')
     parser.add_argument('file', type=str, metavar='FILE', help='input CSV file')
+    parser.add_argument('-l', '--long', default=False, 
+        action='store_true', help='more info in subtitles')
 
     args = parser.parse_args()
 
@@ -113,8 +115,12 @@ def main():
                     for subrange in rng.partition(n=args.partition):
                         print(counter)
                         print("%s --> %s" % (subrange.begin, subrange.end))
-                        # print("~ %s m [%s -- %s | %s s]" % (distance, subrange.begin, subrange.end, round(subrange.length(unit='seconds'))))
-                        print("~ %s m" % (distance))
+                        if args.long:
+                            print("~ %s m [%s | %s]" % (
+                                d, subrange.begin, 
+                                round(subrange.length(unit='seconds'))))
+                        else:
+                            print("~ %s m" % (d))
                         print()
 
                         distance += 1 / (args.partition)
@@ -123,8 +129,12 @@ def main():
                     print(counter)
                     __end = rng.end - ONE_MILLISECOND
                     print("%s --> %s" % (rng.begin, __end))
-                    # print("~ %s meters [%s -- %s | %s s]" % (distance, rng.begin, __end, round(rng.length(unit='seconds'))))
-                    print("~ %s m" % (distance))
+                    if args.long:
+                        print("~ %s m [%s | %s]" % (
+                            d, rng.begin, 
+                            round(rng.length(unit='seconds'))))
+                    else:
+                        print("~ %s m" % (d))
                     print()
                     counter += 1
                     distance = d
