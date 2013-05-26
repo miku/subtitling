@@ -4,6 +4,8 @@ README
 `subtitlegen` creates [SRTs](http://en.wikipedia.org/wiki/SubRip) from 
 [CSVs](http://en.wikipedia.org/wiki/Comma-separated_values).
 
+> SRT is perhaps the most basic of all subtitle formats. ([http://www.matroska.org/technical/specs/subtitles/srt.html](http://www.matroska.org/technical/specs/subtitles/srt.html))
+
 1. Create the **subtitles from csv** via `subtitlegen.py`:
 
         $ python subtitlegen.py --long sample.csv > sample.srt
