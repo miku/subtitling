@@ -117,10 +117,10 @@ def main():
                         print("%s --> %s" % (subrange.begin, subrange.end))
                         if args.long:
                             print("~ %s m [%s | %s]" % (
-                                d, subrange.begin, 
+                                distance, subrange.begin, 
                                 round(subrange.length(unit='seconds'))))
                         else:
-                            print("~ %s m" % (d))
+                            print("~ %s m" % (distance))
                         print()
 
                         distance += 1 / (args.partition)
