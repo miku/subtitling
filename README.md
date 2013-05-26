@@ -8,7 +8,7 @@ README
 
         $ python subtitlegen.py --long sample.csv > sample.srt
 
-    The expected CSV format is:
+    The expected CSV format is (note that the time format is `MM:SS:Milliseconds`, although full milliseconds would need three digits):
 
         $ cat sample.csv
         0,34:39:00
@@ -17,7 +17,7 @@ README
         3,35:55:00
         ...
 
-    The resulting srt looks like:
+    The resulting srt looks like (the time format here is `HH:MM:SS,milliseconds`):
 
         $ cat sample.srt
         0
