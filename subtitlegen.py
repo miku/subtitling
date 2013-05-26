@@ -113,7 +113,8 @@ def main():
                     for subrange in rng.partition(n=args.partition):
                         print(counter)
                         print("%s --> %s" % (subrange.begin, subrange.end))
-                        print("~ %s meters [%s -- %s | %s s]" % (distance, subrange.begin, subrange.end, round(subrange.length(unit='seconds'))))
+                        # print("~ %s m [%s -- %s | %s s]" % (distance, subrange.begin, subrange.end, round(subrange.length(unit='seconds'))))
+                        print("~ %s m" % (distance))
                         print()
 
                         distance += 1 / (args.partition)
@@ -122,9 +123,11 @@ def main():
                     print(counter)
                     __end = rng.end - ONE_MILLISECOND
                     print("%s --> %s" % (rng.begin, __end))
-                    print("~ %s meters [%s -- %s | %s s]" % (distance, rng.begin, __end, round(rng.length(unit='seconds'))))
+                    # print("~ %s meters [%s -- %s | %s s]" % (distance, rng.begin, __end, round(rng.length(unit='seconds'))))
+                    print("~ %s m" % (distance))
                     print()
                     counter += 1
+                    distance = d
 
             except ValueError as err:
                 print('parse error: {}'.format(err), file=sys.stderr)
