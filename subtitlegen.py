@@ -7,6 +7,11 @@ import csv
 import sys
 import re
 
+SRT_ITEM = """
+{counter}
+{begin} --> {end}
+{message}"""
+
 class Timerange(object):
     """ Helper object representing an interval.
     """
@@ -86,7 +91,11 @@ class Timestamp(object):
     def __repr__(self):
         return self.__str__()        
 
+def render_subtitle_item(counter=None, begin=None, end=None, message=None):
+    return SRT_ITEM.format(**locals())
+
 ONE_MILLISECOND = Timestamp.from_ms(1)
+
 
 def main():
 
@@ -103,39 +112,43 @@ def main():
         reader = csv.reader(handle)
         rows = [ row for row in reader ]
         counter, distance = 0, 0
+
         for i, row in enumerate(rows[:-1]):
             try:
                 current, nxt = rows[i], rows[i + 1]
                 d = current[0] # the current distance
                 begin, end = map(Timestamp, [current[1], nxt[1]])
-
                 rng = Timerange(begin=begin, end=end)
 
+                # if we want smaller intervals ...
                 if args.partition:
                     for subrange in rng.partition(n=args.partition):
-                        print(counter)
-                        print("%s --> %s" % (subrange.begin, subrange.end))
                         if args.long:
-                            print("~ %s m [%s | %s]" % (
+                            message = "~ %s m [%s | %s]" % (
                                 distance, subrange.begin, 
-                                round(subrange.length(unit='seconds'))))
+                                round(subrange.length(unit='seconds')))
                         else:
-                            print("~ %s m" % (distance))
-                        print()
+                            message = "~ %s m" % (distance)
+                        print(render_subtitle_item(counter=counter,
+                            begin=subrange.begin, end=subrange.end,
+                            message=message))
 
                         distance += 1 / (args.partition)
                         counter += 1
+
+                # if we only use the CSV data ...
                 else:
-                    print(counter)
                     __end = rng.end - ONE_MILLISECOND
-                    print("%s --> %s" % (rng.begin, __end))
                     if args.long:
-                        print("~ %s m [%s | %s]" % (
+                        message = "~ %s m [%s | %s]" % (
                             d, rng.begin, 
-                            round(rng.length(unit='seconds'))))
+                            round(rng.length(unit='seconds')))
                     else:
-                        print("~ %s m" % (d))
-                    print()
+                        message = "~ %s m" % (distance)
+                    print(render_subtitle_item(counter=counter,
+                        begin=rng.begin, end=__end,
+                        message=message))
+
                     counter += 1
                     distance = d
 

@@ -1,0 +1,18 @@
+digraph G {
+	rankdir="BT"
+	"1-20-S-2-38-S/VIDE0001.mov"
+	"1-20-S-2-38-S/VIDE0002.mov"
+	"sample.csv"
+	"a.ts"
+	"1-20-S-2-38-S/VIDE0001.mov" -> "a.ts"
+	"b.ts"
+	"1-20-S-2-38-S/VIDE0002.mov" -> "b.ts"
+	"ab.mp4"
+	"a.ts" -> "ab.mp4"
+	"b.ts" -> "ab.mp4"
+	"sample.srt"
+	"sample.csv" -> "sample.srt"
+	"output.m4v"
+	"ab.mp4" -> "output.m4v"
+	"sample.srt" -> "output.m4v"
+}
