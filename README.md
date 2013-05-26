@@ -54,7 +54,7 @@ README
 
 4. **Test** the subtitles with [mplayer](http://www.mplayerhq.hu/):
 
-        $ mplayer -sub sample.srt galactic_timelapse.avi
+        $ mplayer -sub sample.srt ab.mp4
 
 
 5. **Create a new file** that has a dedicated subtitle track with [MP4Box](http://gpac.wp.mines-telecom.fr/mp4box/):
