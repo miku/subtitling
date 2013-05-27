@@ -76,20 +76,22 @@ class Timerange(object):
         self.begin = begin
         self.end = end
 
-    def length(self, unit='milliseconds'):
+    def __len__(self, unit='milliseconds'):
         """ 
         Return the length of this range as seconds or milliseconds. 
         """
-        millis = (self.end.to_ms() - self.begin.to_ms())
+        return self.end.to_ms() - self.begin.to_ms()
+
+    def length(self, unit='milliseconds'):
         if unit == 'seconds':
-            return millis / 1000
-        return millis
+            return len(self) / 1000
+        return len(self)  
 
     def partition(self, n=10):
         """ 
         Partition the range into `n` pieces, return a list of Timeranges. 
         """
-        delta = self.length() / n
+        delta = len(self) / n
         begin = self.begin
         parts = []
         for _ in range(n):
