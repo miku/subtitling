@@ -89,11 +89,10 @@ class Timerange(object):
 
     def partition(self, n=10):
         """ 
-        Partition the range into `n` pieces, return a list of Timeranges. 
+        Partition the range into `n` pieces. Generates Timeranges. 
         """
         delta = len(self) / n
         begin = self.begin
-        parts = []
         for _ in range(n):
             end = Timestamp.from_ms(begin.to_ms() + delta - 1)
             yield Timerange(begin=begin, end=end)
