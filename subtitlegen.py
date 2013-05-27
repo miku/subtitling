@@ -76,7 +76,7 @@ class Timerange(object):
         self.begin = begin
         self.end = end
 
-    def __len__(self, unit='milliseconds'):
+    def __len__(self):
         """ 
         Return the length of this range as seconds or milliseconds. 
         """
