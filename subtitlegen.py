@@ -93,7 +93,7 @@ class Timerange(object):
         """
         delta = len(self) / n
         begin = self.begin
-        for _ in range(n):
+        for _ in xrange(n):
             end = Timestamp.from_ms(begin.to_ms() + delta - 1)
             yield Timerange(begin=begin, end=end)
             begin = Timestamp.from_ms(begin.to_ms() + delta)
