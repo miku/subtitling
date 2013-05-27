@@ -96,20 +96,23 @@ class Timerange(object):
         parts = []
         for _ in range(n):
             end = Timestamp.from_ms(begin.to_ms() + delta - 1)
-            parts.append(Timerange(begin=begin, end=end))
+            yield Timerange(begin=begin, end=end)
             begin = Timestamp.from_ms(begin.to_ms() + delta)
-        return parts
 
     def __str__(self):
         return '<Timerange {0.begin} -- {0.end} [{1:03.3f}s]>'.format(
             self, self.length('seconds'))
 
+    def __repr__(self):
+        return self.__str__()
 
 class Timestamp(object):
     """ 
-    Timestamp object, format: mm:ss:ll (where ll = milliseconds).
+    Timestamp object, initialization format: mm:ss:ll (where ll = milliseconds)
+    corresponds to values found in CSV. To create a Timestamp from milliseconds,
+    see: `Timestamp.from_ms(milliseconds)` factory.
     """
-    def __init__(self, value='00:00:00,000'):
+    def __init__(self, value='00:00:00'):
         mo = re.match('([0-5][0-9]):([0-5][0-9]):([0-5][0-9])', value)
         if not mo:
             raise ValueError('cannot parse "%s" into a Timestamp' % value)
@@ -127,6 +130,8 @@ class Timestamp(object):
         current = long(milliseconds)
         if current > 215999999:
             raise ValueError('Between 00:00:00,000 and 59:59:59,999 only.')
+        ts.hours = current // 3600000
+        current -= ts.hours * 3600000
         ts.minutes = current // 60000
         current -= ts.minutes * 60000
         ts.seconds = current // 1000
@@ -145,10 +150,18 @@ class Timestamp(object):
             1000 * 60 * 60 * self.hours)
 
     def __add__(self, other):
-        return Timestamp.from_ms(self.to_ms() + other.to_ms())
+        if isinstance(other, (int, long)):
+            return Timestamp.from_ms(self.to_ms() + other)
+        if isinstance(other, Timestamp):
+            return Timestamp.from_ms(self.to_ms() + other.to_ms())
+        raise ValueError('can only add Timestamp or int (interpreted as ms)')
 
     def __sub__(self, other):
-        return Timestamp.from_ms(self.to_ms() - other.to_ms())
+        if isinstance(other, (int, long)):
+            return Timestamp.from_ms(self.to_ms() - other)
+        if isinstance(other, Timestamp):
+            return Timestamp.from_ms(self.to_ms() - other.to_ms())
+        raise ValueError('can only add Timestamp or int (interpreted as ms)')
 
     def __str__(self):
         return '{:02d}:{:02d}:{:02d},{:03d}'.format(
@@ -180,7 +193,7 @@ def main():
         for i, _ in enumerate(rows[:-1]):
             try:
                 current, nxt = rows[i], rows[i + 1]
-                begin, end = [ Timestamp(s) for s in [current[1], nxt[1]]]
+                begin, end = [Timestamp(s) for s in [current[1], nxt[1]]]
                 rng = Timerange(begin=begin, end=end)
 
                 # if we want smaller intervals ...
