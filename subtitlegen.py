@@ -161,7 +161,7 @@ class Timestamp(object):
             return Timestamp.from_ms(self.to_ms() - other)
         if isinstance(other, Timestamp):
             return Timestamp.from_ms(self.to_ms() - other.to_ms())
-        raise ValueError('can only add Timestamp or int (interpreted as ms)')
+        raise ValueError('can only subtract Timestamp or int (interpreted as ms)')
 
     def __str__(self):
         return '{:02d}:{:02d}:{:02d},{:03d}'.format(
