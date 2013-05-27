@@ -179,7 +179,6 @@ def main():
         for i, _ in enumerate(rows[:-1]):
             try:
                 current, nxt = rows[i], rows[i + 1]
-                depth = current[0]    # the current distance
                 begin, end = [ Timestamp(s) for s in [current[1], nxt[1]]]
                 rng = Timerange(begin=begin, end=end)
 
@@ -196,11 +195,12 @@ def main():
                               begin=subrange.begin, end=subrange.end,
                               message=message))
 
-                        distance += 1 / (args.partition)
+                        distance += (float(nxt[0]) - float(current[0])) / (args.partition)
                         counter += 1
 
                 # if we only use the CSV data ...
                 else:
+                    depth = current[0]    # the current distance
                     __end = rng.end - ONE_MILLISECOND
                     if args.long:
                         message = "~ %s m [%s | %s]" % (
@@ -215,7 +215,8 @@ def main():
                     counter += 1
 
             except ValueError as err:
-                print('parse error: {}'.format(err), file=sys.stderr)
+                print('parse error: {}: file={}, line={}, current={}, next={}'.format(
+                    err, args.file, i + 1, current, nxt), file=sys.stderr)
 
     return 0
 
