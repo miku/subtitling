@@ -161,7 +161,9 @@ ONE_MILLISECOND = Timestamp.from_ms(1)
 
 
 def main():
-
+    """ 
+    Parse and go.
+    """
     parser = argparse.ArgumentParser('subtitlegen')
     parser.add_argument('-p', '--partition', metavar='N', type=int,
                         help='partition into N parts')
@@ -172,8 +174,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.file) as handle:
-        reader = csv.reader(handle)
-        rows = [row for row in reader]
+        rows = [row for row in csv.reader(handle)]
         counter, distance = 0, 0
 
         for i, _ in enumerate(rows[:-1]):
@@ -195,28 +196,29 @@ def main():
                               begin=subrange.begin, end=subrange.end,
                               message=message))
 
-                        distance += (float(nxt[0]) - float(current[0])) / (args.partition)
+                        distance += (
+                            (float(nxt[0]) - float(current[0])) / 
+                            (args.partition))
                         counter += 1
 
                 # if we only use the CSV data ...
                 else:
-                    depth = current[0]    # the current distance
-                    __end = rng.end - ONE_MILLISECOND
+                    distance = current[0]    # the current distance
                     if args.long:
                         message = "~ %s m [%s | %s]" % (
-                            depth, rng.begin,
+                            distance, rng.begin,
                             round(rng.length(unit='seconds')))
                     else:
-                        message = "~ %s m" % (depth)
+                        message = "~ %s m" % (distance)
                     print(render_subtitle_item(counter=counter,
-                          begin=rng.begin, end=__end,
+                          begin=rng.begin, end=rng.end - ONE_MILLISECOND,
                           message=message))
 
                     counter += 1
 
             except ValueError as err:
                 print('parse error: {}: file={}, line={}, current={}, next={}'.format(
-                    err, args.file, i + 1, current, nxt), file=sys.stderr)
+                       err, args.file, i + 1, current, nxt), file=sys.stderr)
 
     return 0
 
