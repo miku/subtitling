@@ -176,7 +176,7 @@ def main():
         rows = [row for row in reader]
         counter, distance = 0, 0
 
-        for i, row in enumerate(rows[:-1]):
+        for i, _ in enumerate(rows[:-1]):
             try:
                 current, nxt = rows[i], rows[i + 1]
                 depth = current[0]    # the current distance
