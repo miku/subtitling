@@ -69,6 +69,8 @@ As a picture
 
 ![Makefile viz.](http://i.imgur.com/6qHrqgC.png "Makefile viz. Thanks vak (https://github.com/vak/makefile2dot)")
 
+Thanks [vak](https://github.com/vak) for [vak](https://github.com/vak/makefile2dot).
+
 Failed attempts
 ---------------
 

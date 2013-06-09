@@ -128,7 +128,7 @@ class Timestamp(object):
         ts = Timestamp()
         current = long(milliseconds)
         if current > 215999999:
-            raise ValueError('Between 00:00:00,000 and 59:59:59,999 only.')
+            raise ValueError('between 00:00:00,000 and 59:59:59,999 only')
         ts.hours = current // 3600000
         current -= ts.hours * 3600000
         ts.minutes = current // 60000
