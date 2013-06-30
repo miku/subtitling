@@ -53,18 +53,6 @@ import csv
 import sys
 import re
 
-SRT_ITEM = """
-{counter}
-{begin} --> {end}
-{message}"""
-
-
-def render_subtitle_item(counter=None, begin=None, end=None, message=None):
-    """ 
-    Helper to render one subtitle item.
-    """
-    return SRT_ITEM.format(**locals())
-
 
 class Timerange(object):
     """ 
@@ -72,7 +60,9 @@ class Timerange(object):
     """
     def __init__(self, begin=None, end=None):
         if not begin and not end:
-            raise ValueError('start and end required')
+            raise ValueError('begin and end required')
+        if not (isinstance(begin, Timestamp) and isinstance(end, Timestamp)):
+            raise ValueError('begin and end must be of type <Timestamp>')
         self.begin = begin
         self.end = end
 
@@ -115,10 +105,10 @@ class Timestamp(object):
         mo = re.match('([0-5][0-9]):([0-5][0-9]):([0-5][0-9])', value)
         if not mo:
             raise ValueError('cannot parse "%s" into a Timestamp' % value)
-        self.minutes = long(mo.group(1)) or 0
-        self.seconds = long(mo.group(2)) or 0
-        self.milliseconds = long(mo.group(3)) or 0
         self.hours = 0
+        self.minutes = int(mo.group(1))
+        self.seconds = int(mo.group(2))
+        self.milliseconds = int(mo.group(3))
 
     @classmethod
     def from_ms(cls, milliseconds):
@@ -155,13 +145,6 @@ class Timestamp(object):
             return Timestamp.from_ms(self.to_ms() + other.to_ms())
         raise ValueError('can only add Timestamp or int (interpreted as ms)')
 
-    def __sub__(self, other):
-        if isinstance(other, (int, long)):
-            return Timestamp.from_ms(self.to_ms() - other)
-        if isinstance(other, Timestamp):
-            return Timestamp.from_ms(self.to_ms() - other.to_ms())
-        raise ValueError('can only subtract Timestamp or int (interpreted as ms)')
-
     def __str__(self):
         return '{:02d}:{:02d}:{:02d},{:03d}'.format(
             self.hours, self.minutes, self.seconds, self.milliseconds)
@@ -180,10 +163,16 @@ def main():
     parser.add_argument('-p', '--partition', metavar='N', type=int,
                         help='partition into N parts')
     parser.add_argument('file', type=str, metavar='FILE', help='input CSV file')
-    parser.add_argument('-l', '--long', default=False,
-                        action='store_true', help='more info in subtitles')
+    parser.add_argument('-s', '--style', metavar='NAME', default='long',
+                        help='message style: long or short')
 
     args = parser.parse_args()
+
+    messages = {
+        'long' :  '~ {distance} m [{begin} | {duration}]',
+        'short' : '~ {distance} m'
+    }
+    template = "{counter}\n{begin} --> {end}\n{message}\n"
 
     with open(args.file) as handle:
         rows = [row for row in csv.reader(handle)]
@@ -195,42 +184,32 @@ def main():
                 begin, end = [Timestamp(s) for s in [current[1], nxt[1]]]
                 rng = Timerange(begin=begin, end=end)
 
-                # if we want smaller intervals ...
                 if args.partition:
                     for subrange in rng.partition(n=args.partition):
-                        if args.long:
-                            message = "~ %s m [%s | %s]" % (
-                                distance, subrange.begin,
-                                round(subrange.length(unit='seconds')))
-                        else:
-                            message = "~ %s m" % (distance)
-                        print(render_subtitle_item(counter=counter,
-                              begin=subrange.begin, end=subrange.end,
-                              message=message))
+                        message = messages.get(args.style).format(
+                            distance=distance, begin=subrange.begin,
+                            duration=round(subrange.length(unit='seconds')))
+                        
+                        print(template.format(counter=counter, begin=begin,
+                            end=end, message=message))
 
                         distance += (
                             (float(nxt[0]) - float(current[0])) / 
                             (args.partition))
                         counter += 1
-
-                # if we only use the CSV data ...
                 else:
                     distance = current[0]    # the current distance
-                    if args.long:
-                        message = "~ %s m [%s | %s]" % (
-                            distance, rng.begin,
-                            round(rng.length(unit='seconds')))
-                    else:
-                        message = "~ %s m" % (distance)
-                    print(render_subtitle_item(counter=counter,
-                          begin=rng.begin, end=rng.end - ONE_MILLISECOND,
-                          message=message))
-
+                    message = messages.get(args.style).format(
+                        distance=distance, begin=begin,
+                        duration=round(rng.length(unit='seconds')))
+                    print(template.format(counter=counter, begin=begin,
+                        end=end, message=message))
                     counter += 1
 
             except ValueError as err:
                 print('parse error: {}: file={}, line={}, current={}, next={}'.format(
                        err, args.file, i + 1, current, nxt), file=sys.stderr)
+                return 1
 
     return 0
 
