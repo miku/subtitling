@@ -198,7 +198,7 @@ def main():
                             (args.partition))
                         counter += 1
                 else:
-                    distance = current[0]    # the current distance
+                    distance = current[0]
                     message = messages.get(args.style).format(
                         distance=distance, begin=begin,
                         duration=round(rng.length(unit='seconds')))
